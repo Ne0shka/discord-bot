@@ -1,7 +1,6 @@
 import json
 from io import BytesIO
 
-from discord import File, Embed
 from discord.ext import commands
 from PIL import Image, ImageDraw, ImageFont
 
@@ -14,13 +13,12 @@ class Welcomer(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        with open(self.bot.path / "templates" / "welcome_embed.json") as file:
+        embed_ctrl = self.bot.get_cog('EmbedController')
+        if embed_ctrl:
             channel = await member.guild.fetch_channel(WELCOME_CHANNEL_ID)
-            embed = Embed.from_dict(json.load(file))
-            file = await self.get_welcome_image(member)
-
-            embed.set_image(url="attachment://welcome.png")
-            await channel.send(file=file, embed=embed)
+            image = await self.get_welcome_image(member)
+            embed = await embed_ctrl.get_embed_from_json(fp=self.bot.path / "templates" / "welcome_embed.json")
+            await embed_ctrl.send_from_bot(channel, embed, image)
 
     async def get_welcome_image(self, member):
         with BytesIO() as file:
@@ -36,4 +34,4 @@ class Welcomer(commands.Cog):
 
             image.save(file, format='PNG', optimize=True)
             file.seek(0)
-            return File(fp=file, filename="welcome.png")
+            return file
