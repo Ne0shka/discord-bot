@@ -1,6 +1,6 @@
 import json
 from discord.ext import commands
-from discord import Embed, File, Webhook
+from discord import Embed, File
 
 
 class EmbedController(commands.Cog):
@@ -29,7 +29,8 @@ class EmbedController(commands.Cog):
         else:
             pass
 
-    async def send_from_bot(self, channel, embed, image=None):
+    @staticmethod
+    async def send_from_bot(channel, embed, image=None):
         file = None
         if image:
             file = File(fp=image, filename="welcome.png")

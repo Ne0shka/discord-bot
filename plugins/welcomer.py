@@ -1,4 +1,3 @@
-import json
 from io import BytesIO
 
 from discord.ext import commands
