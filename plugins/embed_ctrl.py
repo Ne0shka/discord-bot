@@ -7,7 +7,7 @@ class EmbedController(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.hybrid_command()
+    @commands.command()
     async def say(self, ctx, *, data):
         await ctx.message.delete()
         embed = None
@@ -37,4 +37,3 @@ class EmbedController(commands.Cog):
             file = File(fp=image, filename="welcome.png")
             embed.set_image(url="attachment://welcome.png")
         await channel.send(content=text, file=file, embed=embed)
-
