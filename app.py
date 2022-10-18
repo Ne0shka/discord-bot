@@ -13,6 +13,7 @@ class Bot(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix=COMMAND_PREFIXES, intents=self.setup_intents())
         self.path = Path(os.path.dirname(os.path.abspath(__file__)))
+        self.available_plugins = {}
 
     @staticmethod
     def setup_intents():
@@ -27,6 +28,7 @@ class Bot(commands.Bot):
 
     async def register_plugins(self):
         for Plugin in plugins:
+            self.available_plugins[Plugin(self).qualified_name] = Plugin
             await self.add_cog(Plugin(self))
 
     async def register_app_commands(self):
