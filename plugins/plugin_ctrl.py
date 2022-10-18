@@ -1,3 +1,5 @@
+from importlib import reload
+
 from discord.ext import commands
 from discord import ClientException
 
@@ -8,8 +10,10 @@ class PluginController(commands.Cog):
 
     async def enable_plugin(self, plugin_name):
         try:
-            await self.bot.add_cog(self.bot.available_plugins[plugin_name](self.bot))
-            return f'{plugin_name} успешно перезагружен!'
+            plugin = self.bot.available_plugins[plugin_name]
+            reload(plugin.__module__)
+            await self.bot.add_cog(plugin(self.bot))
+            return None
         except TypeError:
             print(f'{plugin_name} не является Cog\'ом')
             return f'Произошла ошибка! Проверьте консоль!'
@@ -25,7 +29,11 @@ class PluginController(commands.Cog):
     @commands.command()
     async def enable(self, ctx, *, plugin_name):
         if plugin_name in self.bot.available_plugins:
-            await ctx.send(await self.enable_plugin(plugin_name))
+            err = await self.enable_plugin(plugin_name)
+            if err:
+                await ctx.send(err)
+            else:
+                await ctx.send(f'{plugin_name} успешно загружен!')
         else:
             await ctx.send('Неверно указано имя плагина!')
 
@@ -43,7 +51,11 @@ class PluginController(commands.Cog):
     async def reload(self, ctx, *, plugin_name):
         if plugin_name in self.bot.available_plugins:
             if await self.disable_plugin(plugin_name):
-                await ctx.send(await self.enable_plugin(plugin_name))
+                err = await self.enable_plugin(plugin_name)
+                if err:
+                    await ctx.send(err)
+                else:
+                    await ctx.send(f'{plugin_name} успешно перезагружен!')
             else:
                 await ctx.send(f'{plugin_name} был выгружен ранее!')
         else:
